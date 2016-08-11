@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>React Tutorial</title>
+    <!-- Not present in the tutorial. Just for basic styling. -->
+    <link rel="stylesheet" href="css/base.css" />
+    <script src="https://npmcdn.com/react@15.3.0/dist/react.js"></script>
+    <script src="https://npmcdn.com/react-dom@15.3.0/dist/react-dom.js"></script>
+    <script src="https://npmcdn.com/babel-core@5.8.38/browser.min.js"></script>
+    <script src="https://npmcdn.com/jquery@3.1.0/dist/jquery.min.js"></script>
+    <script src="https://npmcdn.com/remarkable@1.6.2/dist/remarkable.min.js"></script>
+    <!-- <script type="text/babel" src="/scripts/comment-components.js"></script> -->
+    <!-- <script type="text/babel" src="/scripts/comment-box.js"></script> -->
+  </head>
+  <body>
+    <div id="content"></div>
+    <!-- <script type="text/babel" src="scripts/example.js"></script> -->
+    <script type="text/babel">
+    var CommentBox = React.createClass({
+     render: function () {
+       return (
+         <div className="commentBox">
+           <h1>Comments</h1>
+           <CommentList data={this.props.data} />
+           <CommentForm />
+         </div>
+
+         //  React.createElement('div', {className: "commentBox"},
+         //    "Hello, world! I am a CommentBox."
+         //  )
+       );
+     },
+   });
+
+   var CommentList = React.createClass({
+     render: function () {
+       var commentNodes = this.props.data.map(function(comment) {
+         return (
+           <Comment author={comment.author} key={comment.id} >
+             {comment.text}
+           </Comment>
+         );
+       });
+       return (
+         <div className="commentList">
+           {commentNodes}
+      {/*     <Comment author="Pete Hunt">This is one comment</Comment>
+      //       this.props.author^^^, this.props.children^^^
+      //     <Comment author="Jordan Walke">This is one *more* comment</Comment>
+                                                       ^^^markdown */}
+         </div>
+       );
+     },
+   });
+
+   var CommentForm = React.createClass({
+     render: function () {
+       return (
+         <div className="commentForm">
+           Hello, world! I am a CommentForm.
+         </div>
+       );
+     },
+   });
+
+   var Comment = React.createClass({
+     // ill-advised backdoor to manipulate raw html for prop
+     rawMarkup: function() {
+       var md = new Remarkable();
+       var rawMarkup = md.render(this.props.children.toString());
+       return { __html: rawMarkup }
+     },
+     render: function () {
+       return (
+         <div className="comment">
+           <h2 className="commentAuthor">
+             {this.props.author}
+           </h2>
+           { /* md.render(this.props.children.toString()) << This won't work w remarkable's render - protection against XSS */ }
+           { /* this.rawMarkup() << This will get blocked */ }
+           <span dangerouslySetInnerHTML={this.rawMarkup()} />
+         </div>
+       );
+     },
+   });
+
+   var data = [
+    {id: 1, author: "Pete Hunt", text: "This is one comment"},
+    {id: 2, author: "Jordan Walke", text: "This is *another* comment"}
+  ];
+
+   ReactDOM.render(
+     <CommentBox url="/api/comments" />, // same as React.createElement(CommentBox, null),
+     document.getElementById('content') // 2nd arg is root element for rendering
+   );
+      // To get started with this tutorial running your own code, simply remove
+      // the script tag loading scripts/example.js and start writing code here.
+    </script>
+  </body>
+</html>
